@@ -280,8 +280,9 @@ app.post("/signup", (req, res) => {
     const newUser = {
       email: req.body.email,
       password: req.body.password,
-      nickname: email
+      nickname: req.body.email
     };
+    console.log(newUser)
 
     db.collection("users")
       .findOne({ email: newUser.email })
