@@ -44,6 +44,14 @@ io.on('connection', (socket) => {//emitting sse event
     // Broadcast the new comment to all connected clients (including the sender)
     io.emit('updatedComment', comment);
   });
+  socket.on('deletedComment', (comment) => {
+    console.log('New comment received:', comment);
+
+    // You can do further processing or save the comment to your database here
+
+    // Broadcast the new comment to all connected clients (including the sender)
+    io.emit('deletedComment', comment);
+  });
 
   // Handle other events and socket-related code as needed
 });
