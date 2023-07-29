@@ -36,6 +36,14 @@ io.on('connection', (socket) => {//emitting sse event
     // Broadcast the new comment to all connected clients (including the sender)
     io.emit('newComment', comment);
   });
+  socket.on('updatedComment', (comment) => {
+    console.log('New comment received:', comment);
+
+    // You can do further processing or save the comment to your database here
+
+    // Broadcast the new comment to all connected clients (including the sender)
+    io.emit('updatedComment', comment);
+  });
 
   // Handle other events and socket-related code as needed
 });
@@ -635,6 +643,70 @@ app.delete('/comments/:commentId/replies/:replyId', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to delete reply' });
   }
 });
+
+app.patch('/comments/:commentId', async (req, res) => {
+  try {
+    const commentId = req.params.commentId;
+    const comm_body = req.body;
+
+    // Find the comment to which the reply should be added
+    let comment = await Comment.findById(commentId).populate('nickname', '-_id nickname').populate('replies.nickname', '-_id nickname');
+
+    if (!comment) {
+      return res.status(404).json({ success: false, message: 'Comment not found' });
+    }
+
+    // Update the comment with the new values from comm_body
+    comment.set(comm_body);
+
+    // Save the updated comment to the database
+    const patchedComment = await comment.save();
+
+    res.status(201).json({ success: true, message: 'Comment patched successfully', patchedComment });
+  } catch (error) {
+    console.error('Error adding reply:', error);
+    res.status(500).json({ success: false, message: 'Failed to patch comment' });
+  }
+});
+
+
+app.patch('/comments/:commentId/replies/:replyId', async (req, res) => {
+  try {
+    const commentId = req.params.commentId;
+    const replyId = req.params.replyId;
+    const replyBody = req.body;
+
+    // Find the comment to which the reply belongs
+    let comment = await Comment.findById(commentId).populate('nickname', '-_id nickname').populate('replies.nickname', '-_id nickname');
+    if (!comment) {
+      return res.status(404).json({ success: false, message: 'Comment not found' });
+    }
+
+    // Find the specific reply within the comment's replies array
+    const replyIndex = comment.replies.findIndex(reply => reply._id.toString() === replyId);
+
+    if (replyIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Reply not found' });
+    }
+
+    // Update the reply with the new values from replyBody
+    comment.replies[replyIndex].set(replyBody);
+
+    // Save the updated comment to the database
+    await comment.save();
+
+    // Get the updated reply
+    const updatedReply = comment.replies[replyIndex];
+
+    res.status(201).json({ success: true, message: 'Reply patched successfully', updatedReply });
+  } catch (error) {
+    console.error('Error patching reply:', error);
+    res.status(500).json({ success: false, message: 'Failed to patch reply' });
+  }
+});
+
+
+
 
 
 
