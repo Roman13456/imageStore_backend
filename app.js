@@ -7,9 +7,6 @@ const cloudinary = require('cloudinary').v2;
 const cors = require('cors');
 const {getDb, connectToDb}=require('./db')
 const mongoose = require('mongoose'); // Add this line
-const corsOptions = {
-  origin: 'http://localhost:3000',
-};
 const http = require('http');
 const socketIO = require('socket.io');
 
@@ -18,7 +15,7 @@ const app = express();
 const port = 3001;
 
 app.use(express.json());
-app.use(cors(corsOptions));
+app.use(cors());
 const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {
