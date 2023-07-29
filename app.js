@@ -542,7 +542,7 @@ app.get('/comments/:productId', async (req, res) => {
     const productId = req.params.productId;
 
     // Find all comments for the specified product and populate the 'nickname' field
-    const comments = await Comment.find({ productId }).populate('nickname', '-_id nickname').populate('replies.nickname', '-_id nickname');;
+    const comments = await Comment.find({ productId }).sort({createdAt:-1}).populate('nickname', '-_id nickname').populate('replies.nickname', '-_id nickname');;
 
     res.status(200).json({ success: true, comments });
   } catch (error) {
