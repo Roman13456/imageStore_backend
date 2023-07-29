@@ -1,21 +1,23 @@
-const {MongoClient} = require('mongodb')
+// db.js
 
+const mongoose = require('mongoose');
 
-let dbConnection
+let dbConnection;
 
 module.exports = {
-    connectToDb:(cb)=>{
-        const uri = "mongodb+srv://romankhromishin:test1234@cluster0.a60ndgf.mongodb.net/"
-        MongoClient.connect(uri)
-        .then((client)=>{
-            dbConnection = client.db()
-            return cb()
-        })
-        .catch(err=>{
-            console.log(err)
-            return cb(err)
-        })
-    },
-    getDb: ()=>dbConnection
-}
+  connectToDb: async (cb) => {
+    try {
+        // Use your actual MongoDB URI for development and production
+        const uri = "mongodb+srv://romankhromishin:test1234@cluster0.a60ndgf.mongodb.net/" // Replace with your actual connection string
+        await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+        dbConnection = mongoose.connection;
+      return cb();
+    } catch (err) {
+      console.error(err);
+      return cb(err);
+    }
+  },
+  getDb: () => dbConnection,
+};
+
   
